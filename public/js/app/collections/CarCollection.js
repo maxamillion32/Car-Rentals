@@ -66,9 +66,11 @@ define(['jquery', 'backbone', 'models/Car'],
 				*/
 				
 				var self = this;
+				
+				var baseUrl = Backbone.production_mode?"http://ec2-54-172-17-79.compute-1.amazonaws.com/hotwire?":"http://localhost:8001/hotwire?";
 				$.ajax({
 					type: "GET",
-					url:"http://localhost:8001/hotwire?" + options.data.queryString,
+					url: baseUrl + options.data.queryString,
 					dataType: "json",
 					success: function(data){
 						console.log(data);

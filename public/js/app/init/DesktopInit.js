@@ -6,6 +6,9 @@ require(["jquery", "underscore", "backbone", "routers/DesktopRouter"],
 
   function($, _, Backbone, DesktopRouter) {
 	
+	//Extend Backbone with a global metadata object
+	Backbone.production_mode = true;
+	
 	//Extend Backbone with a global Pub/Sub Mechanism
 	Backbone.pubSub = _.extend({}, Backbone.Events);
 		
