@@ -19,16 +19,16 @@ Only the Desktop Router is implemented for this demo. The router is strictly spe
 # Views
 **Top-Level Views** - responsible for making changes to data models, re/rendering subviews, and destroying subviews in response to events received from component views
 
--Home
--CarListView
--CarDetailView
+*Home
+*CarListView
+*CarDetailView
 
 **Component Views** - responsible for triggering events in response to user interaction and managing own internal state
 
--HeaderView
--SearchView
--FilterView
--LoadingScreenView
+*HeaderView
+*SearchView
+*FilterView
+*LoadingScreenView
 
 Views are rendered using [Handlebars](http://handlebarsjs.com/)
 
