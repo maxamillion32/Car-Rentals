@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>views/CarListView.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">64.79</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">286</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">71.13</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">3.39</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">/**
+*	CarListView is the top-level view listings that result from a query to the Hotwire API. 
+*		
+*	CarListView is responsible for maintaining state information which it passes to subviews 
+*			and updating views in response to user interactions, which it determines by subscribing to events.
+*		
+*	Subviews are solely responsible for displaying information, and publishing events in response to user interactions
+*		Subviews of CarListView include: HeaderView, SearchView, FilterView, and CarResultsView
+*/
+
+define([
+	&#039;jquery&#039;, 
+	&#039;underscore&#039;, 
+	&#039;backbone&#039;, 
+	&#039;handlebars&#039;, 
+	&#039;models/Car&#039;,
+	&#039;collections/CarCollection&#039;, 
+	&#039;text!templates/hbs/carlist.hbs&#039;,
+	&#039;views/HeaderView&#039;,
+	&#039;views/FilterView&#039;,
+	&#039;views/SearchView&#039;,
+	&#039;views/CarResultsView&#039;,
+	&#039;views/LoadingScreenView&#039;,
+	&#039;routers/LocationNavigator&#039;], 
+	
+	function($, _, Backbone, Handlebars, Car, CarCollection, carListTemplate, HeaderView, FilterView, SearchView, CarResultsView, LoadingScreenView, LocationNavigator){
+		
+		var CarListView = Backbone.View.extend({
+			el: &#039;.example&#039;,
+			initialize: function(options){
+				console.log(options);
+				_.bindAll(this, &#039;render&#039;, &#039;applyFilters&#039;, &#039;applyRangeFilter&#039;, &#039;applyPropertyFilter&#039;, &#039;clearFilters&#039;, &#039;destroy&#039;);
+				this.locationNavigator = new LocationNavigator();
+				this.queryString = options.queryString;
+				this.collection = options.collection? options.collection: new CarCollection();
+				this.subviews = [];
+				this.filters = {};
+				
+				this.listenTo(Backbone.pubSub,&#039;filter:price&#039;, function(payload){
+					console.log(payload.min +&quot;-&quot;+payload.max);
+					delete this.filters[&quot;DailyRateUSD&quot;];
+					this.filters[&quot;DailyRateUSD&quot;] = [payload.min, payload.max];
+					this.applyFilters();
+				});
+				
+				this.listenTo(Backbone.pubSub,&#039;filter:miles&#039;, function(payload){
+					console.log(payload.min +&quot;-&quot;+payload.max);
+					console.log(this);
+					//possible a regex solution?
+					delete this.filters[&quot;MileagePerWeek&quot;];
+					this.filters[&quot;MileagePerWeek&quot;] = [payload.min, payload.max];
+					this.applyFilters();
+				});
+				
+				this.listenTo(Backbone.pubSub,&#039;filter:seating&#039;, function(payload){
+					console.log(payload.value);
+					console.log(this);
+					delete this.filters[&quot;Seats&quot;];
+					if(!(payload.value===&quot;all&quot;))
+						this.filters[&quot;Seats&quot;] = payload.value;
+					this.applyFilters();
+				});
+				
+				this.listenTo(Backbone.pubSub,&#039;filter:model&#039;, function(payload){
+					console.log(payload.value);
+					console.log(this);
+					delete this.filters[&quot;CarTypeCode&quot;];
+					if(!(payload.value===&quot;all&quot;))
+						this.filters[&quot;CarTypeCode&quot;] = payload.value;
+					this.applyFilters();
+				});
+				
+				this.listenTo(Backbone.pubSub, &#039;filter:features&#039;, function(payload){
+					//use PossibleFeaturesList property
+					console.log(payload.value);
+					console.log(this);
+					delete this.filters[&quot;PossibleFeaturesList&quot;];
+					if(!(payload.value===&quot;all&quot;))
+						this.filters[&quot;PossibleFeaturesList&quot;] = payload.value;
+					this.applyFilters();
+				});
+				
+				this.listenTo(Backbone.pubSub, &#039;filter:clear&#039;, function(){
+					console.log(&quot;clearing the filter!&quot;);
+					this.clearFilters();
+				});
+				
+				this.listenTo(Backbone.pubSub, &#039;search:start&#039;, function(payload){
+					console.log(&quot;home is creating a loading screen&quot;);
+					this.loadingScreen = new LoadingScreenView({
+						&quot;styles&quot;:{
+							&quot;position&quot;:&quot;absolute&quot;,
+							&quot;top&quot;: &quot;35%&quot;,
+							&quot;left&quot;:&quot;45%&quot;
+						}
+					});
+					this.loadingScreen.render();
+					$(this.el).append(this.loadingScreen.el);	
+				});
+				
+				this.listenTo(Backbone.pubSub, &#039;search:complete&#039;, function(payload){
+					if(this.loadingScreen){
+						this.loadingScreen.destroy();
+						this.loadingScreen = null;
+					}
+				});
+				
+			},
+			
+			render: function(options){
+				$(this.el).empty();
+				var headerView = new HeaderView().render();
+				var searchView = new SearchView().render({
+					&#039;displayMode&#039;:&#039;horizontal&#039;,
+					&#039;styles&#039;:{
+						&#039;width&#039;:&#039;100%&#039;,
+						&#039;padding&#039;:&#039;1% 1% 0% 1%&#039;,
+						&#039;border&#039;: &#039;none&#039;
+						},
+					&#039;queryString&#039;:this.queryString
+					});
+				$(searchView.el).appendTo(this.el);
+				var filterView = new FilterView().render();
+				$(filterView.el).appendTo(this.el);
+				
+				this.subviews.push(headerView);
+				this.subviews.push(searchView);
+				this.subviews.push(filterView);
+				
+				var carResultsView;
+				
+				if(this.collection.toArray().length &lt; 1){
+					var loadingView = new LoadingScreenView({
+						&quot;styles&quot;:{
+							&quot;position&quot;:&quot;absolute&quot;,
+							&quot;top&quot;: &quot;35%&quot;,
+							&quot;left&quot;:&quot;45%&quot;
+						}
+					}).render();
+					$(loadingView.el).appendTo(this.el);
+				
+					//no collection was given or a collection was given with no models, refresh results
+					var newCollection = new CarCollection();
+					newCollection.fetch({
+						success: $.proxy(function(data, response, options){
+							if(!data || Object.keys(data).length === 0){
+								//really no results, so display an error
+								//$(this.el).append($(&quot;&lt;p&gt;&quot;).text(&quot;No results to display&quot;));
+								this.locationNavigator.navigate(&#039;https://localhost:8001/&#039;); //proper redirect w/pub-sub to communicate back to router
+							}else{
+								//new results, refresh the data
+								newCollection.reset(data);
+								console.log(&quot;fetching new results!&quot;);
+								Backbone.pubSub.trigger(&#039;carList:refresh&#039;, {searchResults:data});
+								this.collection = newCollection;
+								
+								//render resultsView with new data
+								loadingView.destroy();
+								carResultsView = new CarResultsView({collection:this.collection}).render();
+								$(carResultsView.el).appendTo(this.el);
+								this.subviews.push(carResultsView);
+							}
+						}, this), 
+						error: $.proxy(function(data, response, options){
+							console.log(&#039;error!&#039;);
+							loadingView.destroy();
+							
+							var errorMessage = data[&quot;StatusDesc&quot;];
+							if(data[&quot;Errors&quot;].hasOwnProperty(&quot;Error&quot;)){
+								errorMessage+=&quot;: &quot;+	data[&quot;Errors&quot;][&quot;Error&quot;][&quot;ErrorMessage&quot;];
+							}else{
+								if(data[&quot;Errors&quot;].length &gt; 0){
+									errorMessage+=&quot;: &quot;;
+									data[&quot;Errors&quot;].forEach(function(errorObj){
+										errorMessage += errorObj[&quot;ErrorMessage&quot;] + &quot;, &quot;;
+									});
+									errorMessage = errorMessage.slice(0,errorMessage.length-2);
+								}
+							}
+							carResultsView = new CarResultsView({collection:null, errorMessage: errorMessage}).render();
+							$(carResultsView.el).appendTo(this.el);
+							this.subviews.push(carResultsView);
+						}, this),
+						data: {queryString:this.queryString}
+					});
+				}else{
+					//a collection was given to render with &gt; 0 models
+					carResultsView = new CarResultsView({collection:this.collection}).render();
+					$(carResultsView.el).appendTo(this.el);
+					this.subviews.push(carResultsView);
+				}
+				
+				return this; //makes view chainable
+			},
+			
+			applyFilters: function(){
+				var self = this;
+				var carsArray = self.collection.toArray();
+
+				for(var filter in self.filters){
+					switch(filter){
+						case &quot;DailyRateUSD&quot;:
+							var min = self.filters[filter][0] === 250? &quot;Unlimited&quot;: self.filters[filter][0];
+							var max = self.filters[filter][1] === 250? &quot;Unlimited&quot;: self.filters[filter][1];	
+							carsArray = self.applyRangeFilter(carsArray, filter, min, max);
+							break;
+						case &quot;MileagePerWeek&quot;:
+							//additional processing may be required
+							var min = self.filters[filter][0] === 2000? &quot;Unlimited&quot;: self.filters[filter][0];
+							var max = self.filters[filter][1] === 2000? &quot;Unlimited&quot;: self.filters[filter][1];
+							carsArray = self.applyRangeFilter(carsArray, filter, min, max);
+							break;
+						case &quot;Seats&quot;:
+							carsArray = self.applyPropertyFilter(carsArray, filter, self.filters[filter]);
+							break;
+						case &quot;CarTypeCode&quot;:
+							var carCodes = self.filters[filter].split(&quot;,&quot;); //supports car types that map to multiple codes
+							carsArray = self.applyMultiFilter(carsArray, filter, carCodes);
+							break;
+						case &quot;PossibleFeaturesList&quot;:
+							carsArray = self.applyContainsFilter(carsArray, filter, self.filters[filter]);
+							break; 
+						default:
+							break;
+						
+					}
+				}
+				
+				var newCollection = new CarCollection();
+				newCollection.reset(carsArray);
+				Backbone.pubSub.trigger(&#039;carList:updatedCollection&#039;, {collection: newCollection});
+				
+			},
+			
+			applyRangeFilter: function(array, property, min, max){
+				return _.filter(array, function(item){
+					var itemJson = item.toJSON();
+					if(min === &quot;Unlimited&quot; || max === &quot;Unlimited&quot;)
+						return itemJson[property] &gt;= min || itemJson[property] === &quot;Unlimited&quot;;
+					else
+						return itemJson[property] &gt;= min &amp;&amp; itemJson[property] &lt;= max;
+				});
+				
+			},
+			
+			applyPropertyFilter: function(array, property, value){
+				return _.filter(array, function(item){
+					var itemJson = item.toJSON();
+					return (itemJson[property] === value);
+				});
+			},
+			
+			applyMultiFilter: function(array, property, values){
+				return _.filter(array, function(item){
+					var itemJson = item.toJSON();
+					var matched = false;
+					for(var i=0; i &lt; values.length; i++){
+						if(itemJson[property] === values[i])
+							matched = true;
+					}
+					
+					return matched;
+				});
+			},
+			
+			applyContainsFilter: function(array, property, value){
+				return _.filter(array, function(item){
+					var itemJson = item.toJSON(),
+					itemArray = itemJson[property];
+					for(var i=0; i &lt; itemArray.length; i++){
+						if(itemArray[i] === value)
+							return true;
+					}
+					
+					return false;
+				});
+			},
+			
+			clearFilters: function(){
+				Backbone.pubSub.trigger(&#039;carList:updatedCollection&#039;, {collection: this.collection});
+			},
+			destroy: function(){
+				console.log(&quot;CarListView destroyed&quot;);
+				this.subviews.forEach(function(subview){
+					console.log(subview);
+					subview.destroy();
+				});
+				this.unbind();
+				this.stopListening();
+			}
+			
+		});
+		
+		return CarListView;
+	}
+);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

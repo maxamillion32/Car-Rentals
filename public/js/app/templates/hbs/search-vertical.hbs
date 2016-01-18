@@ -1,0 +1,23 @@
+<form class='search-form-vertical'>
+		<div class="form-group search-group-vertical" id='search-group-location'>
+			<div for="location" class='search-form-label'>Near</div>
+			<input class='form-control search-form-input' id='search-location' type='text' placeholder="eg. Boston, MA"/>
+			<div id='search-location-error'></div>
+		</div>
+	
+		<div class="form-group search-group-vertical id='search-group-fromdate'">
+			<div for="from-time" class='search-form-label'>From</div>
+			<input class='form-control search-form-input search-form-datetime' type='text' id='fromdatetime' placeholder="MM/DD/YY HH:MM" readonly/>
+			<div id='search-fromdatetime-error'></div>
+		</div>
+	
+		<div class="form-group search-group-vertical" id='search-group-todate'>
+			<div for="to-time" class='search-form-label'>Until</div>
+			<input class='form-control search-form-input search-form-datetime' type='text' id='todatetime' placeholder="MM/DD/YY HH:MM" readonly/>
+			<div id='search-todatetime-error'></div>
+		</div>
+		
+		
+		<button class="btn search-form-button-vertical" id='search-form-submit' type="submit">Find Rentals Near Me</button>
+		<div id='search-errors'></div>
+</form>

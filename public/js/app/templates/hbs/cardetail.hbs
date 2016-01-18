@@ -1,0 +1,71 @@
+<div id='car-detail-wrapper'>
+	<div id='car-detail-title'>{{car.PossibleModels}}</div>
+	
+	<div class='col-md-7 col-md-offset-1'>
+			<img src='{{car.imgUrl}}' id='car-detail-image'>
+			
+			<div class='car-detail-group' id='car-detail-group-pricing'>
+				<div class='car-detail-header'>Pricing</div>
+				<ul>
+					<li>
+						<div class='car-detail-item-label'>Daily Rate</div>
+						<div class='car-detail-item-description'>${{car.DailyRate}}/day x {{car.RentalDays}} rental days</div>
+					</li>
+					<li>
+						<div class='car-detail-item-label'>Subtotal</div>
+						<div class='car-detail-item-description'>${{car.SubTotal}}</div>
+					</li>
+					<li>
+						<div class='car-detail-item-label'>Taxes & Fees</div>
+						<div class='car-detail-item-description'>${{car.TaxesAndFees}}</div> 
+					</li>
+					<li>
+						<div class='car-detail-item-label'>Total Price</div>
+						<div class='car-detail-item-description'>${{car.TotalPrice}}</div> 
+					</li>
+				</ul>
+		</div>
+		
+		<div id='car-detail-booking-button'>
+			<a href='{{car.DeepLink}}' target='_blank'>Book Now</a>
+		</div>
+	</div>
+	
+	<div id='car-detail-information' class='col-md-3'>
+		<div class='car-detail-group'>
+			<div class='car-detail-header'>Description</div>
+			<ul>
+				<li>
+					<div class='car-detail-item-label'>Location</div>
+					<div class='car-detail-item-description'>{{car.LocationDescription}}</div>
+				</li>
+				<li>
+					<div class='car-detail-item-label'>Pickup Day & Time</div>
+					<div class='car-detail-item-description'>{{car.PickupDay}} at {{car.PickupTime}}</div>
+				</li>
+				<li>
+					<div class='car-detail-item-label'>Dropoff Day & Time</div>
+					<div class='car-detail-item-description'>{{car.DropoffDay}} at {{car.DropoffTime}}</div>
+				</li>
+				<li>
+					<div class='car-detail-item-label'>Possible Features</div>
+					<div class='car-detail-item-description'>{{car.PossibleFeatures}}</div>
+				</li>
+				<li>
+					<div class='car-detail-item-label'>Car Type</div>
+					<div class='car-detail-item-description'>{{car.CarTypeName}}</div>
+				</li>
+				<li>
+					<div class='car-detail-item-label'>Typical Seating</div>
+					<div class='car-detail-item-description'>Typically seats {{car.TypicalSeating}}</div>
+				</li>
+				<li>
+					<div class='car-detail-item-label'>Mileage</div>
+					<div class='car-detail-item-description'>{{car.MileageDescription}}</div>
+				</li>
+			</ul>
+		</div>
+		
+		
+	</div>
+</div>

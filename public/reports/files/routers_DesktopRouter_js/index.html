@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>routers/DesktopRouter.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">65.59</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">122</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">16.96</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">0.88</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">// DesktopRouter.js
+// ----------------
+define([&quot;jquery&quot;, &quot;backbone&quot;,&quot;views/Home&quot;, &quot;views/CarListView&quot;, &quot;views/CarDetailView&quot;, &quot;collections/CarCollection&quot;],
+
+    function($, Backbone, Home, CarListView, CarDetailView, CarCollection) {
+
+        var DesktopRouter = Backbone.Router.extend({
+
+            initialize: function() {
+            
+            	this.currentView = null;
+            	
+				Backbone.pubSub.on(&#039;search:success&#039;, function(payload){ //when user performs a search via form
+					
+					//update the state of the address bar without triggering route function
+					this.navigate(&#039;/cars?&#039;+payload.queryString, {trigger:false}); 
+					
+					//manually refresh state of app, should abstract out of the router in a larger application
+					
+					var newCollection = new CarCollection();
+					newCollection.reset(payload.searchResults);
+					
+					var carListView = new CarListView({collection:newCollection, queryString:payload.queryString});
+            		this.transitionTo(carListView);
+					
+				}, this);
+				
+				
+				Backbone.pubSub.on(&#039;carResult:selected&#039;, function(payload){
+					
+					//update the state of the address bar without triggering route function
+					this.navigate(&#039;/cars/&#039;+payload.model.get(&quot;ResultId&quot;), {trigger:false}); 
+					
+					//manually refresh state of app, should abstract out of the router in a larger application
+					var carDetailView = new CarDetailView(payload.model);
+            		this.transitionTo(carDetailView);
+            		
+				}, this);
+				
+                // Tells Backbone to start watching for hashchange events
+                Backbone.history.start();
+
+            },
+
+            // All of your Backbone Routes
+            routes: {
+
+                // When there is no hash on the url, the home method is called
+                &quot;&quot;: &quot;index&quot;,
+                &quot;cars(?query)&quot;: &quot;carListView&quot;, //parentheses properly capture the query
+                &quot;cars/:resultId&quot;: &quot;carDetailView&quot;,
+                &quot;*notFound&quot;: &quot;index&quot; 
+
+            },
+
+            index: function() {
+                // Instantiates a new view which will render the header text to the page
+                var home = new Home({router:this});
+                this.transitionTo(home);
+
+            },
+            
+            carListView: function(query){
+            	//Instantiates CarListView
+            	var carListView = new CarListView({collection:null, queryString:query})
+            	this.transitionTo(carListView);
+            },
+            
+            carDetailView: function(resultId){
+            
+            	/**
+            	*	Not ideal, but because the Hotwire API  has no way of querying for a listing by id,
+            	*	and hard refreshes clear any kind of app state we would try to remember anyways,
+            	*	navigating to a Car detail simply redirects the user to a &#039;default search&#039;.
+            	* 	Again, in a larger app, view manipulation logic should be abstracted out of the Router.
+            	*/
+            
+            	var oneDayMs = 1000*60*60*24,
+				threeDaysFromNow = new Date(Date.now() + 3*oneDayMs),
+				tenDaysFromNow = new Date(Date.now() +10*oneDayMs),
+				fromDay = threeDaysFromNow.getDate(),
+				fromMonth = parseFloat(threeDaysFromNow.getMonth()) +1,
+				fromYear = threeDaysFromNow.getFullYear(),
+				toDay = tenDaysFromNow.getDate(),
+				toMonth = parseFloat(tenDaysFromNow.getMonth()) +1,
+				toYear = tenDaysFromNow.getFullYear();
+				
+				if(fromDay &lt; 10)
+					fromDay = &quot;0&quot;+fromDay;
+				
+				if(fromMonth &lt; 10)
+					fromMonth = &quot;0&quot;+fromMonth;
+				
+				if(toDay &lt; 10)
+					toDay = &quot;0&quot;+toDay;
+				
+				if(toMonth &lt; 10)
+					toMonth = &quot;0&quot;+toMonth;
+							
+				
+				var defaultQuery = &quot;dest=Boston&amp;startdate=&quot;+fromMonth+&quot;/&quot;+fromDay+&quot;/&quot;+fromYear+&quot;&amp;enddate=&quot;+toMonth+&quot;/&quot;+toDay+&quot;/&quot;+toYear+&quot;&amp;pickuptime=10:00&amp;dropofftime=10:00&quot;;
+				console.log(defaultQuery);			
+            	this.navigate(&#039;/cars?&#039;+defaultQuery, {trigger:true}); 
+            },
+            
+            transitionTo: function(view){
+            	/**
+            	* use instead of directly calling render on a view, this gives the currentView 
+            	* an opportunity to clean up after itself before going away.
+            	*/
+            	if(this.currentView)
+            		this.currentView.destroy();
+            	this.currentView = view;
+            	this.currentView.render();
+            }
+
+        });
+
+        // Returns the DesktopRouter class
+        return DesktopRouter;
+
+    }
+
+);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

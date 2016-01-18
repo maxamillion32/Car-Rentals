@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>views/SearchView.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">57.32</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">273</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">44.05</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">2.85</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">define([
+	&#039;jquery&#039;, 
+	&#039;underscore&#039;, 
+	&#039;backbone&#039;, 
+	&#039;handlebars&#039;, 
+	&#039;datetimepicker&#039;,
+	&#039;text!templates/hbs/search-horizontal.hbs&#039;,
+	&#039;text!templates/hbs/search-vertical.hbs&#039;,
+	&#039;routers/LocationNavigator&#039;,
+	&#039;collections/CarCollection&#039;],
+	
+		function($, _, Backbone, Handlebars, datetimepicker, searchHorizontalTemplate, searchVerticalTemplate, LocationNavigator, CarCollection){
+			var SearchView = Backbone.View.extend({
+				el:$(&#039;&lt;div id=&quot;search-form-wrapper&quot;&gt;&lt;/div&gt;&#039;),
+				initialize:function(){
+					this.locationNavigator = new LocationNavigator();
+					_.bindAll(this, &#039;render&#039;, &#039;search&#039;);
+				},
+				events:{
+				&#039;click #search-form-submit&#039;: &#039;search&#039;
+				},
+				render:function(options){
+					$(this.el).removeAttr(&#039;style&#039;);
+					var compiledTemplate;
+					
+					if(!options.hasOwnProperty(&quot;displayMode&quot;) || options[&quot;displayMode&quot;] === &quot;horizontal&quot;){
+						compiledTemplate = Handlebars.compile(searchHorizontalTemplate);
+					}else{
+						compiledTemplate = Handlebars.compile(searchVerticalTemplate);
+					}
+					
+					$(this.el).html(compiledTemplate);
+					
+					if(options.hasOwnProperty(&quot;styles&quot;)){
+						for(var rule in options[&quot;styles&quot;]){
+							$(this.el).css(rule, options[&quot;styles&quot;][rule]);
+						}
+					}
+					
+					$(this.el).find(&#039;#fromdatetime&#039;).datetimepicker({
+					step: 30,
+					format: &#039;m/d/Y H:i&#039;,
+					formatDate:&#039;m/d/Y&#039;,
+					formatTime: &#039;H:i&#039;,
+					roundTime: &#039;floor&#039;,
+					onShow: function(){
+							var toDate, toTime, fromDate, fromTime, sameDay;
+						
+							if($(&#039;#todatetime&#039;).val()){
+								var toVals = $(&#039;#todatetime&#039;).val().split(&quot; &quot;);
+								toDate = toVals[0];
+								toTime = toVals[1];
+							}
+						
+							if($(&#039;#fromdatetime&#039;).val()){
+								var fromVals = $(&#039;#fromdatetime&#039;).val().split(&quot; &quot;);
+								fromDate = fromVals[0];
+								fromTime = fromVals[1];
+							}
+						
+						
+							if(toDate === fromDate){
+								sameDay = true;
+							}else{
+								sameDay = false;
+							}
+												
+							var now = new Date(),
+							month = parseFloat(now.getMonth())+1,
+							day = now.getDate(),
+							year = now.getFullYear(),
+							hours = now.getHours(),
+							minutes = now.getMinutes();
+						
+							month = String(month).length &lt; 2? &quot;0&quot;+month:month,
+							day = day &lt; 10? &quot;0&quot;+day:day, 
+							minutes = minutes &lt; 10? &quot;0&quot;+minutes:minutes;
+							
+
+							console.log(minutes);
+							currentDate = month+&quot;/&quot;+day+&quot;/&quot;+year;
+							currentTime = hours+&quot;:&quot;+minutes;
+							console.log(&quot;From:&quot;, currentDate, currentTime, toDate, sameDay, toTime);
+							
+							var minTime; 
+							
+							if(currentDate === fromDate){
+								minTime = 0;
+							}else if(fromDate === toDate){
+								minTime = toTime; 
+							}else{
+								minTime = false;
+							}
+							
+							console.log(fromDate + &quot;-----&quot;+toDate);
+							console.log(minTime);	
+									
+							this.setOptions({
+								minDate: currentDate,
+								minTime: minTime,
+								maxDate: toDate?toDate:false
+								//maxTime:sameDay &amp;&amp; toTime?toTime:false
+							});
+						},
+						onChangeDateTime: function(currentTime, $input){
+							if($input.val()){
+								console.log(currentTime);
+								var values = $input.val().split(&quot; &quot;),
+								timeComponents = values[1].split(&quot;:&quot;);
+							
+								var newDateTime = values[0]+ &quot; &quot;+timeComponents[0]+&quot;:&quot;;
+							
+								if(parseFloat(timeComponents[1]) &gt;= 30){
+									newDateTime +=&quot;30&quot;;
+								}else{ 
+									newDateTime +=&quot;00&quot;;
+								}
+							
+								$input.val(newDateTime);
+							}
+						 }
+					}); 
+					
+					$(this.el).find(&#039;#todatetime&#039;).datetimepicker({
+						step: 30,
+						format: &#039;m/d/Y H:i&#039;,
+						formatDate:&#039;m/d/Y&#039;,
+						formatTime: &#039;H:i&#039;,
+						roundTime: &#039;floor&#039;,
+						onShow: function(){
+								
+								var toDate, toTime, fromDate, fromTime, sameDay;
+						
+								if($(&#039;#todatetime&#039;).val()){
+									var toVals = $(&#039;#todatetime&#039;).val().split(&quot; &quot;);
+									toDate = toVals[0];
+									toTime = toVals[1];
+								}
+						
+								if($(&#039;#fromdatetime&#039;).val()){
+									var fromVals = $(&#039;#fromdatetime&#039;).val().split(&quot; &quot;);
+									fromDate = fromVals[0];
+									fromTime = fromVals[1];
+								}
+						
+						
+								if(toDate === fromDate){
+									sameDay = true;
+								}else{
+									sameDay = false;
+								}
+								
+								console.log(&quot;To:&quot;, fromDate, fromTime, sameDay);
+									
+								this.setOptions({
+									minDate: fromDate?fromDate:false,
+									minTime: sameDay &amp;&amp; fromTime? fromTime:false
+								});
+							},
+						 onChangeDateTime: function(currentTime, $input){
+						 	if($input.val()){
+								console.log(currentTime);
+								var values = $input.val().split(&quot; &quot;),
+								timeComponents = values[1].split(&quot;:&quot;);
+							
+								var newDateTime = values[0]+ &quot; &quot;+timeComponents[0]+&quot;:&quot;;
+							
+								if(parseFloat(timeComponents[1]) &gt;= 30){
+									newDateTime +=&quot;30&quot;;
+								}else{ 
+									newDateTime +=&quot;00&quot;;
+								}
+							
+								$input.val(newDateTime);
+							}
+						 }
+						});
+					
+					if(options.queryString){
+						var queryComponents = options.queryString
+							.match(/=([0-9A-Za-z\/: ])*/g)
+							.map(function(string){
+								return string.slice(1);
+							});
+						$(this.el).find(&#039;#search-location&#039;).val(queryComponents[0]);
+						$(this.el).find(&#039;#fromdatetime&#039;).val(queryComponents[1] +&quot; &quot;+queryComponents[3]);
+						$(this.el).find(&#039;#todatetime&#039;).val(queryComponents[2]+ &quot; &quot;+queryComponents[4]);
+						
+					}
+					
+					return this;
+				},
+				search: function(event){
+					event.preventDefault();
+					console.log(&quot;firing search start&quot;);
+					Backbone.pubSub.trigger(&#039;search:start&#039;, null);
+					$(&#039;#search-errors&#039;).text(&quot;&quot;); //clear the error on every new search
+					
+					var location = $(&#039;#search-location&#039;).val();
+					var toDate, toTime, fromDate, fromTime;
+					
+					if($(&#039;#todatetime&#039;).val()){
+						var toVals = $(&#039;#todatetime&#039;).val().split(&quot; &quot;);
+						toDate = toVals[0];
+						toTime = toVals[1];
+					}
+				
+					if($(&#039;#fromdatetime&#039;).val()){
+						var fromVals = $(&#039;#fromdatetime&#039;).val().split(&quot; &quot;);
+						fromDate = fromVals[0];
+						fromTime = fromVals[1];
+					}
+					
+					var queryString = &quot;dest=&quot;+location+&quot;&amp;startdate=&quot;+fromDate+&quot;&amp;enddate=&quot;+toDate+&quot;&amp;pickuptime=&quot;+fromTime+&quot;&amp;dropofftime=&quot;+toTime;
+					var url = &quot;http://localhost:8001/#/cars?&quot; +queryString;
+					var options = {queryString:queryString};
+					
+					var collection = new CarCollection();
+					
+					collection.fetch({
+						success: $.proxy(function(data, response, options){
+							if(!data || Object.keys(data).length === 0){
+								//$(this.el).append($(&quot;&lt;p&gt;&quot;).text(&quot;No results to display&quot;));
+								//this.locationNavigator.navigate(&#039;https://localhost:8001/&#039;); //proper redirect w/pub-sub to communicate back to router
+							}else{
+								collection.reset(data);
+								console.log(&quot;firing search:complete&quot;);
+								Backbone.pubSub.trigger(&quot;search:complete&quot;, {status:&quot;success&quot;});
+								Backbone.pubSub.trigger(&quot;search:success&quot;, {
+									queryString: queryString,
+									location: location,
+									toDate: toDate,
+									toTime: toTime,
+									fromDate: fromDate,
+									fromTime: fromTime,
+									searchResults: data
+								});
+								//$(new CarResultsView({collection:collection}).render().el).appendTo(this.el);
+							}
+						}, this), 
+						error: $.proxy(function(data, response, options){
+							Backbone.pubSub.trigger(&quot;search:complete&quot;, {status:&quot;error&quot;})
+							var errorMessage = data[&quot;StatusDesc&quot;];
+							if(data[&quot;Errors&quot;].hasOwnProperty(&quot;Error&quot;)){
+								errorMessage+=&quot;: &quot;+	data[&quot;Errors&quot;][&quot;Error&quot;][&quot;ErrorMessage&quot;];
+							}else{
+								if(data[&quot;Errors&quot;].length &gt; 0){
+									errorMessage+=&quot;: &quot;;
+									data[&quot;Errors&quot;].forEach(function(errorObj){
+										errorMessage += errorObj[&quot;ErrorMessage&quot;] + &quot;, &quot;;
+									});
+									errorMessage = errorMessage.slice(0,errorMessage.length-2);
+								}
+							}
+							$(&#039;#search-errors&#039;).text(errorMessage);
+							
+						}, this),
+						data: options
+					});
+					//this.locationNavigator.navigate(url);
+				},
+				
+				destroy: function(){ //cleans up after view
+					$(&#039;#todatetime&#039;).datetimepicker(&#039;destroy&#039;);
+					$(&#039;#fromdatetime&#039;).datetimepicker(&#039;destroy&#039;); //removes the datetimepickers from the dom
+					//this.remove(); //removes the element and event listeners from the dom via jQuery
+					this.unbind(); //removes Backbone  event listeners
+				}
+			});
+			
+			return SearchView;
+		}
+);</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

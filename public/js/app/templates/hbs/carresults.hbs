@@ -1,0 +1,26 @@
+<div class='car-list'>
+	<div id='car-list-error'>{{errorMessage}}</div>
+	<div id='no-results'>{{noResults}}</div>
+	
+	{{#cars}}
+	<a href='' class='car-listing-link'>
+		<div class='car-listing'>
+			<div class='car-listing-title'>{{this.PossibleModels}}</div>
+			<div class='car-listing-content-wrapper'>
+				<img class='car-listing-image' src="{{this.imgUrl}}"/>
+				<div class='car-listing-price-sticker'>
+					<span class='car-listing-price'>${{this.DailyRate}}</span>
+					<span class='car-listing-price-timeframe'>per day</span>
+				</div>
+				<div class='car-listing-banner'>
+					<span>{{this.CarTypeName}}</span>&bull;
+					<span>Typically seats {{this.TypicalSeating}}</span>&bull;
+					<span>Mileage: {{this.MileageDescription}}</span>
+				</div>
+			</div>
+			<input type='hidden' value='{{this.ResultId}}'/>
+		</div>	
+	</a>
+	{{/cars}}
+	<div id='results-number-wrapper'>Currently showing <span id='results-number'>{{cars.length}}</span> results.</div>
+</div>
