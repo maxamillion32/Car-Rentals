@@ -5,7 +5,7 @@ Single Page App using Backbone and Hotwire's Car Rental API
 The Car Rental App is a small demo application that performs queries to Hotwire's Car Rental API, displays available car rentals, provides rudimentary search filters, and additional details about each car rental.
 
 # Demo
-[Demo Link](http://ec2-54-172-17-79.compute-1.amazonaws.com/)
+[Demo Link](http://ec2-54-172-17-79.compute-1.amazonaws.com/). If testing app from repo, create a .env file in the /server directory with a property HOTWIRE_API_KEY=an_api_key. Setting the Backbone.production_mode flag to false tells the CarCollection to fetch data from localhost:8001; setting it to true makes a query to the remote server. 
 
 # DesktopInit
 Since Backbone is an Event-Driven framework, a pubSub object was added to the Backbone object to facilitate communication between views.
