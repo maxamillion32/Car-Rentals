@@ -22,14 +22,13 @@ Only the Desktop Router is implemented for this demo. The router is strictly spe
 
 **Component Views** - responsible for triggering events in response to user interaction, displaying information, and managing own internal state.
 
-  ## Defined Views
-  - Home
-- CarListView
-- CarDetailView
-- HeaderView
-- SearchView
-- FilterView
-- LoadingScreenView
+  - Home: top-level index view
+  - CarListView: top-level results view
+  - CarDetailView: top-level detail view
+  - HeaderView: component view for page header
+  - SearchView: component view for search bar
+  - FilterView: component view for filter sidebar
+  - LoadingScreenView: component view for loading indicator
 
 Views are rendered using [Handlebars](http://handlebarsjs.com/)
 
