@@ -17,13 +17,15 @@ Only the Desktop Router is implemented for this demo. The router is strictly spe
 - **CarCollection:** The collection used to contain all car instances. The CarCollection's fetch() method is overridden to query the a Hotwire URL. The parse() method is overriden to process the data received by extending each raw car object with car type meta data and attaching additional properities to enable filtering.
 
 # Views
-**Top-Level Views** - responsible for making changes to data models, re/rendering subviews, and destroying subviews in response to events received from component views
+**Top-Level Views** - responsible for making changes to data models, re/rendering subviews, and destroying subviews in response to events received from component views.
+
 
 *Home
 *CarListView
 *CarDetailView
 
-**Component Views** - responsible for triggering events in response to user interaction and managing own internal state
+**Component Views** - responsible for triggering events in response to user interaction, displaying information, and managing own internal state.
+
 
 *HeaderView
 *SearchView
