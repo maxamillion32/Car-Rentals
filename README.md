@@ -13,16 +13,18 @@ Since Backbone is an Event-Driven framework, a pubSub object was added to the Ba
 Only the Desktop Router is implemented for this demo. The router is strictly speaking responsible for maintaining synchronicity between the window.href.location and the view currently being displayed. Since this is a small demo, some application logic has been placed inside 
 
 # Models/Collections
-- Car: The model used for each car rental object recieved from Hotwire's Car Rental API
-- CarCollection: The collection used to contain all car instances. The CarCollection's fetch() method is overridden to query the a Hotwire URL. The parse() method is overriden to process the data received by extending each raw car object with car type meta data and attaching additional properities to enable filtering.
+- **Car:** The model used for each car rental object recieved from Hotwire's Car Rental API
+- **CarCollection:** The collection used to contain all car instances. The CarCollection's fetch() method is overridden to query the a Hotwire URL. The parse() method is overriden to process the data received by extending each raw car object with car type meta data and attaching additional properities to enable filtering.
 
 # Views
-Top-Level Views (responsible for making changes to data models, re/rendering subviews, and destroying subviews in response to events received from component views)
+**Top-Level Views** - responsible for making changes to data models, re/rendering subviews, and destroying subviews in response to events received from component views
+
 -Home
 -CarListView
 -CarDetailView
 
-Component Views (responsible for triggering events in response to user interaction and managing own internal state)
+**Component Views** - responsible for triggering events in response to user interaction and managing own internal state
+
 -HeaderView
 -SearchView
 -FilterView
