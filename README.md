@@ -6,7 +6,29 @@ The Car Rental App is a small demo application that performs queries to Hotwire'
 
 # Demo
 
+# DesktopInit
+Since Backbone is an Event-Driven framework, a pubSub object was added to the Backbone object to facilitate communication between views.
 
+# Router
+Only the Desktop Router is implemented for this demo. The router is strictly speaking responsible for maintaining synchronicity between the window.href.location and the view currently being displayed. Since this is a small demo, some application logic has been placed inside 
+
+# Models/Collections
+- Car: The model used for each car rental object recieved from Hotwire's Car Rental API
+- CarCollection: The collection used to contain all car instances. The CarCollection's fetch() method is overridden to query the a Hotwire URL. The parse() method is overriden to process the data received by extending each raw car object with car type meta data and attaching additional properities to enable filtering.
+
+# Views
+Top-Level Views (responsible for making changes to data models, re/rendering subviews, and destroying subviews in response to events received from component views)
+-Home
+-CarListView
+-CarDetailView
+
+Component Views (responsible for triggering events in response to user interaction and managing own internal state)
+-HeaderView
+-SearchView
+-FilterView
+-LoadingScreenView
+
+Views are rendered using [Handlebars](http://handlebarsjs.com/)
 
 # Libraries
 - [Backbone-Require-Boilerplate](https://github.com/BoilerplateMVC/Backbone-Require-Boilerplate) was used as a seed project to handle boilerplate code and workflow configuration
